@@ -35,11 +35,11 @@ public class Model {
 			
 			for( int j = 0; j < nodes; j++) {
 				Vector4f vec = new Vector4f( 12.0f * ((float) Math.cos((2*Math.PI/nodes)*(j) + Math.PI/4 )), 
-						(float) 3*(layers-i-1), 12.0f *((float) Math.sin((2*Math.PI/nodes)*(j) + Math.PI/4 )), 1.0f );
+						(float) 3*(layers-i-1 -(layers-1)/2), 12.0f *((float) Math.sin((2*Math.PI/nodes)*(j) + Math.PI/4 )), 1.0f );
 				newLayer.add(vec);
 			}
 			if(i == 0) {
-				Vector4f vec = new Vector4f( 0.0f, (float) 3*(layers-i-1), 0.0f, 1.0f );
+				Vector4f vec = new Vector4f( 0.0f, (float) 3*(layers-i-1 - (layers-1)/2), 0.0f, 1.0f );
 				newLayer.add(vec);
 			}
 			list.add(newLayer);
@@ -47,7 +47,7 @@ public class Model {
 	}
 	
 	public Vector3f getDirection(int layers, Vector3f camera_pos) {
-		Vector3f center = new Vector3f(0.0f,(float) 3*( (layers-1)/2),0.0f);
+		Vector3f center = new Vector3f();
 		Vector3f direction = new Vector3f(center.x- camera_pos.x, center.y - camera_pos.y, center.z - camera_pos.z);
 		direction.normalize();
 		return direction;
@@ -67,8 +67,6 @@ public class Model {
 			}
 			list.set(i,vectors);
 		}
-//		System.out.println(camera.matrix);
-//		System.out.println();
 	}
 
 	public List<List<Vector4f>> getPoints() {

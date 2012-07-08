@@ -10,6 +10,8 @@ import java.awt.Insets;
 import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.util.List;
 import java.util.Vector;
 
@@ -19,6 +21,7 @@ import javax.vecmath.Vector3f;
 import javax.vecmath.Vector4f;
 
 import matrices.OrthographicProjection;
+
 
 import sort.SenderReceiverPairs;
 
@@ -45,6 +48,7 @@ public class Universe extends JPanel {
 		CameraModifier cameraMod = new CameraModifier();
 		addMouseListener(cameraMod);
 		addMouseMotionListener(cameraMod);
+		addMouseWheelListener(new zoomModifier());
 		
 		model = new Model(numOfNodes,levels.size());
 		camera_pos = new Vector3f(-4.35f, 4.0f, -35.0f);
@@ -75,8 +79,7 @@ public class Universe extends JPanel {
 
 		g2d.setRenderingHints(rh);
 		
-
-		g2d.translate(w/2, 6.0*h/8);
+		g2d.translate(w/2, 3.5*h/8);
 		
 		g2d.setColor(Color.black);
 		
@@ -169,7 +172,7 @@ public class Universe extends JPanel {
 	
 	class CameraModifier extends MouseAdapter {
 		
-		private int x,y,count=0;
+		private int x,y;
 
 		public void mousePressed(MouseEvent event) {
 			x = event.getX();
@@ -177,19 +180,59 @@ public class Universe extends JPanel {
 		} 
 		
 		public void mouseReleased(MouseEvent event) {
-			count++;
 			Vector2f vector = new Vector2f((float) event.getX() - x, (float) event.getY() - y );
 			vector.normalize();
-			camera_pos = new Vector3f((float) (camera_pos.x + vector.x*2),(float) (camera_pos.y + vector.y*2.0), camera_pos.z);
-			
-			//if(count > 15)
-				//camera_pos = new Vector3f(-4.35f, 4.0f, -35.0f);
+			if(Math.abs(event.getX()- x) <  0.0001) {
+				camera_pos = new Vector3f(-4.35f, 4.0f, -35.0f);
+			}else {
+				camera_pos = new Vector3f((float) (camera_pos.x + vector.x*4.0),(float) (camera_pos.y + vector.y*4.0), camera_pos.z);
+				//camera_pos = calculateCordinates(vector);
+			}
 			model.transformPoints(camera_pos);
 			list = model.project(new OrthographicProjection());
-			
-			System.out.println(vector);
-			System.out.println(camera_pos);
 			repaint();
 		}
+		
+//		private Vector3f calculateCordinates(Vector2f direction) {
+//			Vector3f newCoordinates = new Vector3f();
+//			Vector3f mag = new Vector3f(camera_pos);
+//			
+//			float phi = (float) Math.atan(camera_pos.y / camera_pos.x);
+//			float theta = (float) Math.acos(camera_pos.z / mag.length()); 
+//			System.out.println("phi: " + phi + " theta: " + theta + " lenght: " + mag.length());
+//			phi += (float) (direction.x * (Math.PI/6)); 
+//			theta += (float) (direction.y * (Math.PI/6));
+//			
+//			newCoordinates.x = (float) (mag.length() * Math.sin(theta) * Math.cos(phi));
+//			newCoordinates.y = (float) (mag.length() * Math.sin(theta) * Math.sin(phi));
+//			newCoordinates.z = (float) (mag.length() * Math.cos(theta));
+//			
+//			return newCoordinates;
+//		}
+	}
+	
+	class zoomModifier implements MouseWheelListener {
+
+		@Override
+		public void mouseWheelMoved(MouseWheelEvent e) {
+			// TODO Auto-generated method stub
+			if(e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL) {
+				float amount = e.getWheelRotation() * 5f;
+				Vector3f mag = new Vector3f(camera_pos);
+				
+				float phi = (float) Math.atan(camera_pos.y / camera_pos.x);
+				float theta = (float) Math.acos(camera_pos.z / mag.length());
+				float newMag = mag.length() + amount;
+	
+				camera_pos.x = (float) (newMag * Math.sin(theta) * Math.cos(phi));
+				camera_pos.y = (float) (newMag * Math.sin(theta) * Math.sin(phi));
+				camera_pos.z = (float) (newMag * Math.cos(theta));
+				
+				model.transformPoints(camera_pos);
+				list = model.project(new OrthographicProjection());
+				repaint();
+			}
+		}
+		
 	}
 }

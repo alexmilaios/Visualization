@@ -6,18 +6,14 @@ import java.util.List;
 import java.util.Vector;
 
 import javax.swing.JFrame;
-import javax.vecmath.Vector4f;
 
 import sort.SenderReceiverPairs;
-
-import matrices.OrthographicProjection;
 
 public class Visualization {
 
 	public Visualization(int numOfNodes,List<Connection> connections,List<List <Node>> levels, Vector<SenderReceiverPairs> messages) {
 
 		//List<Vector4f> result = model.project(new PerspectiveProjection(10.0f));
-		
 		JFrame frame = new JFrame("Points");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.add(new Universe(46.0f,connections,levels,messages,numOfNodes));
